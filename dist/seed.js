@@ -4,11 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const models_1 = require("./models/models");
-dotenv_1.default.config();
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://Agentic-AI-Project:TVNQPYyUnnnVIovQ@ac-i2evadz-shard-00-00.v3xzplr.mongodb.net:27017,ac-i2evadz-shard-00-01.v3xzplr.mongodb.net:27017,ac-i2evadz-shard-00-02.v3xzplr.mongodb.net:27017/?ssl=true&replicaSet=atlas-48z3v9-shard-0&authSource=admin&appName=Cluster0';
+const environment_1 = require("./config/environment");
+const MONGO_URI = environment_1.config.mongoUri;
+if (!MONGO_URI) {
+    console.error('CRITICAL ERROR: Cannot seed database. MONGO_DB_URI or MONGO_URI environment variable is not defined.');
+    process.exit(1);
+}
 const seedData = async () => {
     try {
         console.log('Connecting to database for seeding...');

@@ -2,11 +2,12 @@ import { Router, Request, Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { DataService } from '../services/dataService';
 import { authMiddleware, AuthRequest } from './auth';
+import { config } from '../config/environment';
 
 export const aiRouter = Router();
 
 const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = config.geminiApiKey;
   if (!apiKey) return null;
   try {
     return new GoogleGenerativeAI(apiKey);

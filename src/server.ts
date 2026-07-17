@@ -1,16 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import { config } from './config/environment';
 import { connectDB } from './config/db';
 import { authRouter } from './controllers/auth';
 import { listingsRouter } from './controllers/listings';
 import { aiRouter } from './controllers/ai';
 
-// Load Env
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 
 // Connect to MongoDB
 connectDB();

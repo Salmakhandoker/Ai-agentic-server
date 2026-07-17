@@ -5,9 +5,10 @@ const express_1 = require("express");
 const generative_ai_1 = require("@google/generative-ai");
 const dataService_1 = require("../services/dataService");
 const auth_1 = require("./auth");
+const environment_1 = require("../config/environment");
 exports.aiRouter = (0, express_1.Router)();
 const getGeminiClient = () => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = environment_1.config.geminiApiKey;
     if (!apiKey)
         return null;
     try {

@@ -5,15 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const dotenv_1 = __importDefault(require("dotenv"));
+const environment_1 = require("./config/environment");
 const db_1 = require("./config/db");
 const auth_1 = require("./controllers/auth");
 const listings_1 = require("./controllers/listings");
 const ai_1 = require("./controllers/ai");
-// Load Env
-dotenv_1.default.config();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 5000;
+const PORT = environment_1.config.port;
 // Connect to MongoDB
 (0, db_1.connectDB)();
 // Middlewares

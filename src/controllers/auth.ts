@@ -2,9 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { DataService } from '../services/dataService';
+import { config } from '../config/environment';
 
 export const authRouter = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'aetheria-super-secret-jwt-key';
+const JWT_SECRET = config.jwtSecret;
 
 // Extend Request interface to include user
 export interface AuthRequest extends Request {
@@ -118,12 +119,54 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-// Google Sign-in Mock/Simulation Route
+// Google Sign-in Route
 authRouter.post('/google', async (req: Request, res: Response) => {
   try {
-    const { email, username, googleId } = req.body;
-    if (!email || !username || !googleId) {
-      return res.status(400).json({ message: 'Google authentication details missing' });
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential token is required' });
+    }
+
+    // Call Google's tokeninfo API to securely verify the ID Token
+    const verifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`;
+    const googleResponse = await fetch(verifyUrl);
+    
+    if (!googleResponse.ok) {
+      const errData = await googleResponse.json().catch(() => ({}));
+      console.error('Google token verification failed:', errData);
+      return res.status(400).json({ message: 'Invalid or expired Google credential token' });
+    }
+
+    const payload = await googleResponse.json() as {
+      iss: string;
+      sub: string;
+      aud: string;
+      email: string;
+      email_verified: string;
+      name?: string;
+      picture?: string;
+      exp: string;
+    };
+
+    // Verify audience matches our Client ID securely
+    if (payload.aud !== config.googleClientId) {
+      console.error(`Google token audience mismatch. Expected: ${config.googleClientId}, Received: ${payload.aud}`);
+      return res.status(400).json({ message: 'Unauthorized Google token audience' });
+    }
+
+    // Verify issuer is Google
+    const isGoogleIssuer = ['accounts.google.com', 'https://accounts.google.com'].includes(payload.iss);
+    if (!isGoogleIssuer) {
+      console.error(`Google token issuer invalid: ${payload.iss}`);
+      return res.status(400).json({ message: 'Invalid Google token issuer' });
+    }
+
+    const email = payload.email;
+    const googleId = payload.sub;
+    const username = payload.name || email.split('@')[0];
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email not provided by Google account' });
     }
 
     let user = await DataService.findUserByEmail(email);
@@ -140,10 +183,8 @@ authRouter.post('/google', async (req: Request, res: Response) => {
         }
       });
     } else if (!user.googleId) {
-      user.googleId = googleId;
-      // If we are using MongoDB, we should save. Otherwise, it is in-memory.
-      // To simplify, let's update profile/settings via updates.
       await DataService.updateUserProfile(user._id.toString(), { googleId });
+      user.googleId = googleId;
     }
 
     const token = jwt.sign(
