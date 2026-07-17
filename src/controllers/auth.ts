@@ -183,7 +183,7 @@ authRouter.post('/google', async (req: Request, res: Response) => {
         }
       });
     } else if (!user.googleId) {
-      await DataService.updateUserProfile(user._id.toString(), { googleId });
+      await DataService.updateUserGoogleId(user._id.toString(), googleId);
       user.googleId = googleId;
     }
 

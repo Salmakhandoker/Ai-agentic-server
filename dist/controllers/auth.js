@@ -146,7 +146,7 @@ exports.authRouter.post('/google', async (req, res) => {
             });
         }
         else if (!user.googleId) {
-            await dataService_1.DataService.updateUserProfile(user._id.toString(), { googleId });
+            await dataService_1.DataService.updateUserGoogleId(user._id.toString(), googleId);
             user.googleId = googleId;
         }
         const token = jsonwebtoken_1.default.sign({ id: user._id, email: user.email, username: user.username }, JWT_SECRET, { expiresIn: '7d' });

@@ -13,8 +13,8 @@ exports.config = {
     jwtSecret: process.env.JWT_SECRET || 'aetheria-super-secret-jwt-key',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
     isProduction: process.env.NODE_ENV === 'production',
-    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
-    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    googleClientId: process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '',
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || process.env.VITE_GOOGLE_CLIENT_SECRET || '',
 };
 // Validate critical variables (warn or throw if missing in production)
 if (!exports.config.mongoUri) {

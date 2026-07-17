@@ -231,6 +231,18 @@ export class DataService {
     return null;
   }
 
+  static async updateUserGoogleId(userId: string, googleId: string) {
+    if (isConnectedToMongo) {
+      return await User.findByIdAndUpdate(userId, { googleId }, { new: true });
+    }
+    const user = localUsers.find(u => u._id.toString() === userId);
+    if (user) {
+      user.googleId = googleId;
+      return user;
+    }
+    return null;
+  }
+
   // Listings Queries
   static async getListings(filters: any = {}) {
     if (isConnectedToMongo) {
