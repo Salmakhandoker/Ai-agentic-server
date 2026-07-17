@@ -24,9 +24,15 @@ app.use(express_1.default.json());
 app.use('/api/auth', auth_1.authRouter);
 app.use('/api/listings', listings_1.listingsRouter);
 app.use('/api/ai', ai_1.aiRouter);
+const db_2 = require("./config/db");
 // Health check
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', service: 'Aetheria Travel Agent Service' });
+    res.status(200).json({
+        status: 'ok',
+        service: 'Aetheria Travel Agent Service',
+        database: db_2.isConnectedToMongo ? 'connected' : 'disconnected',
+        mongoUriProvided: !!environment_1.config.mongoUri
+    });
 });
 // Start Server
 app.listen(PORT, () => {

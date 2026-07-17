@@ -24,9 +24,16 @@ app.use('/api/auth', authRouter);
 app.use('/api/listings', listingsRouter);
 app.use('/api/ai', aiRouter);
 
+import { isConnectedToMongo } from './config/db';
+
 // Health check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'Aetheria Travel Agent Service' });
+  res.status(200).json({ 
+    status: 'ok', 
+    service: 'Aetheria Travel Agent Service',
+    database: isConnectedToMongo ? 'connected' : 'disconnected',
+    mongoUriProvided: !!config.mongoUri
+  });
 });
 
 // Start Server
