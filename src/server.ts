@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/environment';
@@ -5,26 +6,31 @@ import { connectDB } from './config/db';
 import { authRouter } from './controllers/auth';
 import { listingsRouter } from './controllers/listings';
 import { aiRouter } from './controllers/ai';
+import { isConnectedToMongo } from './config/db';
 
 const app = express();
 const PORT = config.port;
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (start connection, but don't block app creation)
+const dbConnectionPromise = connectDB();
 
 // Middlewares
 app.use(cors({
-  origin: '*', // Allow all origins for easy development and connectivity
+  origin: '*',
   credentials: true
 }));
 app.use(express.json());
+
+// Ensure DB connection attempt completes before handling any request
+app.use(async (req, res, next) => {
+  await dbConnectionPromise;
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/listings', listingsRouter);
 app.use('/api/ai', aiRouter);
-
-import { isConnectedToMongo } from './config/db';
 
 // Health check
 app.get('/health', (req, res) => {
@@ -36,7 +42,11 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Start Server (only when NOT on Vercel)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+export default app;
