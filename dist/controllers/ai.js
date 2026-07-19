@@ -49,7 +49,7 @@ exports.aiRouter.post('/generate-itinerary', async (req, res) => {
         const genAI = getGeminiClient();
         if (genAI) {
             try {
-                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
                 const result = await model.generateContent(prompt);
                 const responseText = result.response.text();
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -176,7 +176,7 @@ exports.aiRouter.post('/recommendations', auth_1.authMiddleware, async (req, res
         const genAI = getGeminiClient();
         if (genAI) {
             try {
-                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
                 const result = await model.generateContent(prompt);
                 const responseText = result.response.text();
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -308,7 +308,7 @@ exports.aiRouter.post('/chat', async (req, res) => {
         const genAI = getGeminiClient();
         if (genAI) {
             try {
-                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
                 const result = await model.generateContent(contextPrompt);
                 const responseText = result.response.text();
                 const jsonMatch = responseText.match(/\{[\s\S]*\}/);
